@@ -16,8 +16,14 @@ export type WorkflowStatus = (typeof WORKFLOW_STATUSES)[number];
 
 export const POLLING_INTERVAL_MS = 5_000;
 export const STALE_TIME_MS = 4_000;
-export const RATING_MIN = 1;
-export const RATING_MAX = 5;
+
+export const RATING_OPTIONS = [
+  "exceeds_expectations",
+  "meets_expectations",
+  "needs_improvement",
+] as const;
+
+export type RatingOption = (typeof RATING_OPTIONS)[number];
 
 // --- Status display mappings ---
 

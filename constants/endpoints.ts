@@ -9,5 +9,6 @@ export const ENDPOINTS = {
       `${REVIEWS_BASE}/${id}/signal/form_submitted`,
     SIGNAL_LEAD_APPROVED: (id: string) =>
       `${REVIEWS_BASE}/${id}/signal/lead_approved`,
+    HISTORY: (id: string) => `${REVIEWS_BASE}/${id}/history`,
   },
 } as const;

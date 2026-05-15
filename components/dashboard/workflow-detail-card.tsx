@@ -7,8 +7,13 @@ import { Separator } from "@/components/ui/separator";
 import { WorkflowStatusBadge } from "@/components/shared/workflow-status-badge";
 import { SignalButton } from "@/components/shared/signal-button";
 import { WorkflowTimeline } from "./workflow-timeline";
-import { useWorkflow, useSignalFormSubmitted, useSignalLeadApproved } from "@/api/hooks/use-workflows";
-import { RATING_MIN, RATING_MAX } from "@/constants/enums";
+import {
+  useWorkflow,
+  useWorkflowHistory,
+  useSignalFormSubmitted,
+  useSignalLeadApproved,
+} from "@/api/hooks/use-workflows";
+import { RATING_OPTIONS } from "@/constants/enums";
 import type { WorkflowDetailCardProps } from "./types";
 
 function formatDate(ts: string): string {
@@ -31,6 +36,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 
 export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
   const { data: workflow, isLoading, isError, error } = useWorkflow(workflowId);
+  const { data: historyData } = useWorkflowHistory(workflowId);
   const formSubmitMutation = useSignalFormSubmitted(workflowId);
   const approveMutation = useSignalLeadApproved(workflowId);
 
@@ -83,20 +89,25 @@ export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
             <SignalButton
               label="Submit Form"
               dialogTitle="Submit Employee Review Form"
-              dialogDescription="Provide a response to complete this review form."
+              dialogDescription="Fill in the self-review details below."
               fields={[
                 {
-                  name: "form_response",
-                  label: "Response",
+                  name: "self_assessment",
+                  label: "Self Assessment",
                   type: "text",
-                  placeholder: "Enter your response…",
-                  validation: { required: "Response is required" },
+                  placeholder: "Describe your achievements this period…",
+                  validation: { required: "Self assessment is required" },
+                },
+                {
+                  name: "comments",
+                  label: "Comments",
+                  type: "text",
+                  placeholder: "Any additional comments…",
+                  validation: {},
                 },
               ]}
               onSignal={(data) =>
-                formSubmitMutation.mutateAsync(
-                  data as { form_response: string }
-                )
+                formSubmitMutation.mutateAsync({ form_data: data })
               }
             />
           )}
@@ -105,22 +116,18 @@ export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
               label="Approve"
               variant="default"
               dialogTitle="Approve Review"
-              dialogDescription="Provide a rating from 1 (poor) to 5 (excellent)."
+              dialogDescription={`Enter a rating: ${RATING_OPTIONS.join(" | ")}`}
               fields={[
                 {
                   name: "rating",
-                  label: `Rating (${RATING_MIN}–${RATING_MAX})`,
-                  type: "number",
-                  placeholder: "4",
-                  validation: {
-                    required: "Rating is required",
-                    min: { value: RATING_MIN, message: `Minimum rating is ${RATING_MIN}` },
-                    max: { value: RATING_MAX, message: `Maximum rating is ${RATING_MAX}` },
-                  },
+                  label: "Rating",
+                  type: "text",
+                  placeholder: "exceeds_expectations",
+                  validation: { required: "Rating is required" },
                 },
               ]}
               onSignal={(data) =>
-                approveMutation.mutateAsync(data as { rating: number })
+                approveMutation.mutateAsync(data as { rating: string })
               }
             />
           )}
@@ -140,6 +147,9 @@ export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
           <DetailRow label="Lead ID" value={workflow.lead_id} />
           <DetailRow label="Created At" value={formatDate(workflow.created_at)} />
           <DetailRow label="Updated At" value={formatDate(workflow.updated_at)} />
+          {workflow.rating && (
+            <DetailRow label="Rating" value={workflow.rating} />
+          )}
         </CardContent>
       </Card>
 
@@ -172,7 +182,7 @@ export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
           <CardTitle>Timeline</CardTitle>
         </CardHeader>
         <CardContent>
-          <WorkflowTimeline history={workflow.status_history} />
+          <WorkflowTimeline events={historyData?.events ?? []} />
         </CardContent>
       </Card>
     </div>

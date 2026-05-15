@@ -4,9 +4,11 @@ import { POLLING_INTERVAL_MS, STALE_TIME_MS } from "@/constants/enums";
 import {
   fetchWorkflow,
   fetchWorkflows,
+  fetchWorkflowHistory,
   signalFormSubmitted,
   signalLeadApproved,
   startWorkflow,
+  type FetchWorkflowsParams,
 } from "@/api/reviews";
 import type {
   ApproveSignalPayload,
@@ -19,12 +21,13 @@ export const workflowKeys = {
   all: ["workflows"] as const,
   lists: () => [...workflowKeys.all, "list"] as const,
   detail: (id: string) => [...workflowKeys.all, "detail", id] as const,
+  history: (id: string) => [...workflowKeys.all, "history", id] as const,
 };
 
-export function useWorkflows() {
+export function useWorkflows(params?: FetchWorkflowsParams) {
   return useQuery({
-    queryKey: workflowKeys.lists(),
-    queryFn: fetchWorkflows,
+    queryKey: [...workflowKeys.lists(), params],
+    queryFn: () => fetchWorkflows(params),
     staleTime: STALE_TIME_MS,
     refetchInterval: POLLING_INTERVAL_MS,
   });
@@ -36,6 +39,15 @@ export function useWorkflow(workflowId: string) {
     queryFn: () => fetchWorkflow(workflowId),
     staleTime: STALE_TIME_MS,
     refetchInterval: POLLING_INTERVAL_MS,
+    enabled: !!workflowId,
+  });
+}
+
+export function useWorkflowHistory(workflowId: string) {
+  return useQuery({
+    queryKey: workflowKeys.history(workflowId),
+    queryFn: () => fetchWorkflowHistory(workflowId),
+    staleTime: STALE_TIME_MS,
     enabled: !!workflowId,
   });
 }

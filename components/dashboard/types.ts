@@ -1,4 +1,4 @@
-import type { StatusHistoryEntry, Workflow } from "@/api/types";
+import type { WorkflowHistoryEvent, ReviewDetail } from "@/api/types";
 
 export interface WorkflowTableProps {
   // no external props — data sourced from useWorkflows() internally
@@ -9,7 +9,7 @@ export interface WorkflowDetailCardProps {
 }
 
 export interface WorkflowTimelineProps {
-  history: StatusHistoryEntry[];
+  events: WorkflowHistoryEvent[];
 }
 
 export interface StartWorkflowDialogProps {
@@ -17,4 +17,4 @@ export interface StartWorkflowDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export type { Workflow };
+export type { ReviewDetail };

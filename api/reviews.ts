@@ -1,29 +1,40 @@
+import { z } from "zod";
 import apiClient from "./axios";
 import { ENDPOINTS } from "@/constants/endpoints";
 import {
-  WorkflowSchema,
-  WorkflowListResponseSchema,
+  ReviewSummarySchema,
+  ReviewDetailSchema,
   StartWorkflowRequestSchema,
   StartWorkflowResponseSchema,
   SignalResponseSchema,
   FormSubmitSignalPayloadSchema,
   ApproveSignalPayloadSchema,
-  type Workflow,
+  WorkflowHistoryResponseSchema,
+  type ReviewSummary,
+  type ReviewDetail,
   type StartWorkflowRequest,
   type StartWorkflowResponse,
   type SignalResponse,
   type FormSubmitSignalPayload,
   type ApproveSignalPayload,
+  type WorkflowHistoryResponse,
 } from "./types";
+import type { WorkflowStatus } from "@/constants/enums";
 
-export async function fetchWorkflows(): Promise<Workflow[]> {
-  const { data } = await apiClient.get(ENDPOINTS.REVIEWS.LIST);
-  return WorkflowListResponseSchema.parse(data);
+export interface FetchWorkflowsParams {
+  status?: WorkflowStatus;
+  page?: number;
+  per_page?: number;
 }
 
-export async function fetchWorkflow(workflowId: string): Promise<Workflow> {
+export async function fetchWorkflows(params?: FetchWorkflowsParams): Promise<ReviewSummary[]> {
+  const { data } = await apiClient.get(ENDPOINTS.REVIEWS.LIST, { params });
+  return z.array(ReviewSummarySchema).parse(data.payload);
+}
+
+export async function fetchWorkflow(workflowId: string): Promise<ReviewDetail> {
   const { data } = await apiClient.get(ENDPOINTS.REVIEWS.DETAIL(workflowId));
-  return WorkflowSchema.parse(data);
+  return ReviewDetailSchema.parse(data.payload);
 }
 
 export async function startWorkflow(
@@ -31,7 +42,7 @@ export async function startWorkflow(
 ): Promise<StartWorkflowResponse> {
   const validated = StartWorkflowRequestSchema.parse(body);
   const { data } = await apiClient.post(ENDPOINTS.REVIEWS.START, validated);
-  return StartWorkflowResponseSchema.parse(data);
+  return StartWorkflowResponseSchema.parse(data.payload);
 }
 
 export async function signalFormSubmitted(
@@ -43,7 +54,7 @@ export async function signalFormSubmitted(
     ENDPOINTS.REVIEWS.SIGNAL_FORM_SUBMITTED(workflowId),
     validated
   );
-  return SignalResponseSchema.parse(data);
+  return SignalResponseSchema.parse(data.payload);
 }
 
 export async function signalLeadApproved(
@@ -55,5 +66,10 @@ export async function signalLeadApproved(
     ENDPOINTS.REVIEWS.SIGNAL_LEAD_APPROVED(workflowId),
     validated
   );
-  return SignalResponseSchema.parse(data);
+  return SignalResponseSchema.parse(data.payload);
+}
+
+export async function fetchWorkflowHistory(workflowId: string): Promise<WorkflowHistoryResponse> {
+  const { data } = await apiClient.get(ENDPOINTS.REVIEWS.HISTORY(workflowId));
+  return WorkflowHistoryResponseSchema.parse(data.payload);
 }

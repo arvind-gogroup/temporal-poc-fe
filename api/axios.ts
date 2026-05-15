@@ -11,8 +11,7 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response?.status ?? 500;
     const message =
-      error.response?.data?.message ??
-      error.response?.data?.detail ??
+      error.response?.data?.status?.message ??
       error.message ??
       "An unexpected error occurred";
     return Promise.reject(new ApiError(status, message));
