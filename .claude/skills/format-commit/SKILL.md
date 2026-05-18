@@ -11,8 +11,9 @@ When triggered:
 3. Generate a commit message in this exact format:
 
 ```
-[(prefix)] - (message)
-Impacts - (impacts)
+[{prefix}] - {message}
+
+(Impacts)  - {impacts}
 ```
 
 **prefix** — pick one: `Feature | Fix | Refactor | Doc | Style | Chore | Test | Perf | Build | CI`
@@ -22,7 +23,8 @@ Impacts - (impacts)
 Example:
 ```
 [Refactor] - extract auth logic into useAuth hook
-Impacts - affects login flow and session handling
+
+(Impacts) - affects login flow and session handling
 ```
 
 4. Commit using that message via HEREDOC to preserve formatting
