@@ -4,6 +4,7 @@ export interface WorkflowStatusBadgeProps {
   status: WorkflowStatus;
 }
 
+/** Config for a single form field rendered inside a SignalButton dialog. */
 export interface SignalFieldConfig {
   name: string;
   label: string;
@@ -16,6 +17,10 @@ export interface SignalFieldConfig {
   };
 }
 
+/**
+ * Props for the generic SignalButton component.
+ * `onSignal` receives the raw form values and should call the relevant mutation.
+ */
 export interface SignalButtonProps {
   label: string;
   variant?: "default" | "outline" | "secondary" | "destructive" | "ghost";

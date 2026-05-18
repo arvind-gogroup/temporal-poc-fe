@@ -24,6 +24,10 @@ function formatDate(ts: string): string {
   });
 }
 
+/**
+ * Fetches and displays all workflows in a table.
+ * Polls automatically via useWorkflows and provides a button to open StartWorkflowDialog.
+ */
 export function WorkflowTable() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { data: workflows, isLoading, isError, error } = useWorkflows();

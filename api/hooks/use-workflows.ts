@@ -17,6 +17,10 @@ import type {
 } from "@/api/types";
 import { ApiError } from "@/api/types";
 
+/**
+ * Query key factory for all workflow-related queries.
+ * Centralising keys here enables targeted cache invalidation after mutations.
+ */
 export const workflowKeys = {
   all: ["workflows"] as const,
   lists: () => [...workflowKeys.all, "list"] as const,
@@ -24,6 +28,10 @@ export const workflowKeys = {
   history: (id: string) => [...workflowKeys.all, "history", id] as const,
 };
 
+/**
+ * Polls the full workflow list every {@link POLLING_INTERVAL_MS} for live status updates.
+ * @param params - optional status filter and pagination
+ */
 export function useWorkflows(params?: FetchWorkflowsParams) {
   return useQuery({
     queryKey: [...workflowKeys.lists(), params],
@@ -33,6 +41,10 @@ export function useWorkflows(params?: FetchWorkflowsParams) {
   });
 }
 
+/**
+ * Polls a single workflow every {@link POLLING_INTERVAL_MS}.
+ * Disabled when workflowId is empty.
+ */
 export function useWorkflow(workflowId: string) {
   return useQuery({
     queryKey: workflowKeys.detail(workflowId),
@@ -43,6 +55,10 @@ export function useWorkflow(workflowId: string) {
   });
 }
 
+/**
+ * Fetches the raw Temporal event history for a workflow.
+ * Not polled — fetched once on mount.
+ */
 export function useWorkflowHistory(workflowId: string) {
   return useQuery({
     queryKey: workflowKeys.history(workflowId),
@@ -52,6 +68,7 @@ export function useWorkflowHistory(workflowId: string) {
   });
 }
 
+/** Creates a new employee review workflow. Invalidates the workflow list on success. */
 export function useStartWorkflow() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -68,6 +85,11 @@ export function useStartWorkflow() {
   });
 }
 
+/**
+ * Sends the employee self-review form signal to the workflow.
+ * Invalidates the list and detail on success.
+ * Expects the workflow to be in WAITING_FORM state; errors (409) otherwise.
+ */
 export function useSignalFormSubmitted(workflowId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -86,6 +108,11 @@ export function useSignalFormSubmitted(workflowId: string) {
   });
 }
 
+/**
+ * Sends the lead approval signal to the workflow.
+ * Invalidates the list and detail on success.
+ * Expects the workflow to be in WAITING_APPROVAL state; errors (409) otherwise.
+ */
 export function useSignalLeadApproved(workflowId: string) {
   const queryClient = useQueryClient();
   return useMutation({

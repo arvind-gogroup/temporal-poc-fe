@@ -8,6 +8,10 @@ function formatTimestamp(ts: string): string {
   });
 }
 
+/**
+ * Renders Temporal event history as a chronological timeline.
+ * Events are sorted ascending by timestamp — the backend does not guarantee order.
+ */
 export function WorkflowTimeline({ events }: WorkflowTimelineProps) {
   if (!events.length) {
     return <p className="text-sm text-muted-foreground">No history available.</p>;

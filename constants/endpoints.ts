@@ -1,3 +1,4 @@
+/** All backend API URL paths — import from here rather than hardcoding strings in API calls. */
 const REVIEWS_BASE = "/api/reviews";
 
 export const ENDPOINTS = {

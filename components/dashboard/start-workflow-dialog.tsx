@@ -17,6 +17,10 @@ import { useStartWorkflow } from "@/api/hooks/use-workflows";
 import { StartWorkflowRequestSchema, type StartWorkflowRequest } from "@/api/types";
 import type { StartWorkflowDialogProps } from "./types";
 
+/**
+ * Dialog form for starting a new employee review workflow.
+ * Validates employee_id and lead_id with Zod before submitting to the API.
+ */
 export function StartWorkflowDialog({ open, onOpenChange }: StartWorkflowDialogProps) {
   const { mutateAsync, isPending } = useStartWorkflow();
 

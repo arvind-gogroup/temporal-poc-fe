@@ -34,6 +34,10 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   );
 }
 
+/**
+ * Full detail view for a single workflow. Polls status every 5 s and surfaces
+ * context-aware action buttons (Submit Form at WAITING_FORM, Approve at WAITING_APPROVAL).
+ */
 export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
   const { data: workflow, isLoading, isError, error } = useWorkflow(workflowId);
   const { data: historyData } = useWorkflowHistory(workflowId);

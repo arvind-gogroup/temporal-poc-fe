@@ -91,6 +91,20 @@ Functions in `api/reviews.ts` always unwrap `data.payload` and parse it with the
 
 Workflow state transitions are triggered by POST requests to signal endpoints (`/signal/form_submitted`, `/signal/lead_approved`). These return 409 if the workflow is not in the expected state — the Axios interceptor converts this to an `ApiError` surfaced as a toast.
 
+## JSDoc coverage
+
+All exported symbols have JSDoc. Notable annotations worth knowing:
+
+- `api/axios.ts` — documents the error interceptor behaviour
+- `api/types.ts` — `ApiResponse<T>` and `ApiError` are annotated; each schema has a one-line description
+- `api/reviews.ts` — every function has `@param`/`@throws` noting the HTTP status and required workflow state
+- `api/hooks/use-workflows.ts` — each hook documents polling behaviour and cache-invalidation scope; `workflowKeys` documents why the factory exists
+- `constants/enums.ts` — `STALE_TIME_MS` documents its invariant relationship to `POLLING_INTERVAL_MS`
+- `components/shared/signal-button.tsx` — documents the generic signal pattern
+- `components/dashboard/workflow-detail-card.tsx` — documents which status gates which action button
+
+---
+
 ### Type safety
 
 `WorkflowStatus` and all related display maps (`STATUS_STYLES`, `STATUS_LABELS`) are defined in `constants/enums.ts` as the single source of truth. `api/types.ts` imports from there so Zod schemas and TypeScript types stay in sync.

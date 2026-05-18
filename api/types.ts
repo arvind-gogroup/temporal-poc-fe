@@ -3,6 +3,7 @@ import { WORKFLOW_STATUSES } from "@/constants/enums";
 
 // --- Envelope ---
 
+/** Pagination metadata included on list endpoint responses. */
 export interface ApiMeta {
   page: number;
   per_page: number;
@@ -11,6 +12,10 @@ export interface ApiMeta {
   filters?: Record<string, unknown>;
 }
 
+/**
+ * Universal response envelope wrapping every backend response.
+ * Always read data from `payload`; never from the raw Axios response body.
+ */
 export interface ApiResponse<T> {
   payload: T | null;
   status: {
@@ -29,6 +34,7 @@ export type { WorkflowStatus } from "@/constants/enums";
 
 // --- ReviewSummary (list endpoint) ---
 
+/** Shape of each item returned by GET /api/reviews. */
 export const ReviewSummarySchema = z.object({
   workflow_id: z.string(),
   employee_id: z.string(),
@@ -42,6 +48,7 @@ export type ReviewSummary = z.infer<typeof ReviewSummarySchema>;
 
 // --- ReviewDetail (single endpoint) ---
 
+/** Full workflow detail returned by GET /api/reviews/{workflow_id}. */
 export const ReviewDetailSchema = z.object({
   id: z.string(),
   workflow_id: z.string(),
@@ -59,6 +66,7 @@ export type ReviewDetail = z.infer<typeof ReviewDetailSchema>;
 
 // --- StartWorkflow ---
 
+/** Request payload for POST /api/reviews/start. Validated client-side before sending. */
 export const StartWorkflowRequestSchema = z.object({
   employee_id: z.string().min(1, "Employee ID is required"),
   lead_id: z.string().min(1, "Lead ID is required"),
@@ -85,12 +93,14 @@ export const SignalResponseSchema = z.object({
 
 export type SignalResponse = z.infer<typeof SignalResponseSchema>;
 
+/** Payload for the form_submitted signal. Any JSON object is valid as form_data. */
 export const FormSubmitSignalPayloadSchema = z.object({
   form_data: z.record(z.string(), z.unknown()),
 });
 
 export type FormSubmitSignalPayload = z.infer<typeof FormSubmitSignalPayloadSchema>;
 
+/** Payload for the lead_approved signal. */
 export const ApproveSignalPayloadSchema = z.object({
   rating: z.string().min(1, "Rating is required"),
 });
@@ -116,6 +126,10 @@ export type WorkflowHistoryResponse = z.infer<typeof WorkflowHistoryResponseSche
 
 // --- Error ---
 
+/**
+ * Typed error thrown by the Axios interceptor for all non-2xx responses.
+ * `status` mirrors the HTTP status code; `message` comes from the error envelope when available.
+ */
 export class ApiError extends Error {
   constructor(
     public status: number,

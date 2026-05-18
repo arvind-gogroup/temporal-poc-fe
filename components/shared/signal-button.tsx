@@ -15,6 +15,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { SignalButtonProps } from "./types";
 
+/**
+ * Generic action button that opens a configurable dialog form and calls
+ * `onSignal` with the collected values on submit.
+ *
+ * Used to send Temporal signals without writing a dedicated dialog per signal type.
+ */
 export function SignalButton({
   label,
   variant = "default",

@@ -14,9 +14,16 @@ export type WorkflowStatus = (typeof WORKFLOW_STATUSES)[number];
 
 // --- App config ---
 
+/** How often live queries re-fetch workflow data (ms). */
 export const POLLING_INTERVAL_MS = 5_000;
+
+/**
+ * How long a cached result is considered fresh (ms).
+ * Kept below POLLING_INTERVAL_MS so every poll triggers a network request.
+ */
 export const STALE_TIME_MS = 4_000;
 
+/** Valid rating values for the lead_approved signal. */
 export const RATING_OPTIONS = [
   "exceeds_expectations",
   "meets_expectations",
@@ -27,6 +34,7 @@ export type RatingOption = (typeof RATING_OPTIONS)[number];
 
 // --- Status display mappings ---
 
+/** Tailwind class strings per status, consumed by WorkflowStatusBadge. */
 export const STATUS_STYLES: Record<WorkflowStatus, string> = {
   INITIATED: "bg-blue-100 text-blue-800 border-blue-200",
   WAITING_FORM: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -37,6 +45,7 @@ export const STATUS_STYLES: Record<WorkflowStatus, string> = {
   FAILED: "bg-red-100 text-red-800 border-red-200",
 };
 
+/** Human-readable display labels per status. */
 export const STATUS_LABELS: Record<WorkflowStatus, string> = {
   INITIATED: "Initiated",
   WAITING_FORM: "Waiting Form",
