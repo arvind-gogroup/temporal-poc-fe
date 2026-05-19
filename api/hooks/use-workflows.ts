@@ -56,14 +56,15 @@ export function useWorkflow(workflowId: string) {
 }
 
 /**
- * Fetches the raw Temporal event history for a workflow.
- * Not polled — fetched once on mount.
+ * Polls the raw Temporal event history every {@link POLLING_INTERVAL_MS}.
+ * Events are appended by Temporal as the workflow progresses, so polling keeps the timeline live.
  */
 export function useWorkflowHistory(workflowId: string) {
   return useQuery({
     queryKey: workflowKeys.history(workflowId),
     queryFn: () => fetchWorkflowHistory(workflowId),
     staleTime: STALE_TIME_MS,
+    refetchInterval: POLLING_INTERVAL_MS,
     enabled: !!workflowId,
   });
 }

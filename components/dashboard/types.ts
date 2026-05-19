@@ -13,6 +13,7 @@ export interface WorkflowDetailCardProps {
 /** Props for the Temporal event history timeline. */
 export interface WorkflowTimelineProps {
   events: WorkflowHistoryEvent[];
+  isLoading?: boolean;
 }
 
 /** Props for the dialog that creates a new employee review workflow. */
