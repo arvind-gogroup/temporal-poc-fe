@@ -93,76 +93,70 @@ function WorkflowProgress({ status }: { status: WorkflowStatus }) {
   }
 
   const currentIdx = ORDERED_STEPS.indexOf(status);
+  const allDone = status === "COMPLETED";
+  const progressFraction = allDone ? 1 : currentIdx / (ORDERED_STEPS.length - 1);
+
+  // Each step occupies 1/n of the container; circle centre is at (idx + 0.5) / n.
+  // Track runs from centre of step 0 to centre of step n-1 — inset by 1/(2n) on each side.
+  const n = ORDERED_STEPS.length;
+  const insetPct = 100 / (n * 2);          // e.g. 8.333% for 6 steps
+  const trackPct  = 100 - insetPct * 2;    // e.g. 83.333%
+  const fillPct   = progressFraction * trackPct;
 
   return (
     <div className="rounded-xl border border-border/60 bg-card px-6 py-5 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
           Pipeline Progress
         </p>
         <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-          {currentIdx + 1} / {ORDERED_STEPS.length}
+          {allDone ? n : currentIdx + 1} / {n}
         </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="flex min-w-max items-start">
-          {ORDERED_STEPS.map((step, idx) => {
-            const done = idx < currentIdx;
-            const active = idx === currentIdx;
-            return (
-              <div key={step} className="flex items-start">
-                <div className="flex w-24 flex-col items-center gap-2">
-                  {/* Step circle */}
-                  <div className="relative flex items-center justify-center">
-                    {active && (
-                      <span className="absolute h-12 w-12 animate-ping rounded-full bg-primary/15" />
-                    )}
-                    <div
-                      className={cn(
-                        "relative z-10 flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition-all duration-300",
-                        done
-                          ? "bg-emerald-500 text-white shadow-md shadow-emerald-200/60 dark:shadow-emerald-950/60"
-                          : active
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/25 ring-4 ring-primary/20"
-                          : "bg-muted text-muted-foreground/50"
-                      )}
-                    >
-                      {done ? <CheckCircle2 className="h-4 w-4" /> : idx + 1}
-                    </div>
-                  </div>
+      <div className="relative">
+        {/* Gray track — circle centres are exactly at insetPct from each edge */}
+        <div
+          className="absolute top-4 h-px bg-border/50"
+          style={{ left: `${insetPct}%`, right: `${insetPct}%` }}
+        />
+        {/* Filled portion */}
+        <div
+          className="absolute top-4 h-px bg-emerald-400 transition-[width] duration-700 ease-in-out dark:bg-emerald-600"
+          style={{ left: `${insetPct}%`, width: `${fillPct}%` }}
+        />
 
-                  {/* Step label + description */}
-                  <div className="flex flex-col items-center gap-0.5 text-center">
-                    <span
-                      className={cn(
-                        "whitespace-nowrap text-[10px] font-semibold leading-tight",
-                        active
-                          ? "text-foreground"
-                          : done
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-muted-foreground/40"
-                      )}
-                    >
-                      {STATUS_LABELS[step]}
-                    </span>
-                    <span className="whitespace-nowrap text-[9px] leading-tight text-muted-foreground/40">
-                      {STEP_DESCRIPTIONS[step]}
-                    </span>
-                  </div>
+        {/* flex (not justify-between) so every step column is the same width */}
+        <div className="relative flex">
+          {ORDERED_STEPS.map((step, idx) => {
+            const done = allDone || idx < currentIdx;
+            const active = !allDone && idx === currentIdx;
+            return (
+              <div key={step} className="flex flex-1 flex-col items-center gap-2.5">
+                <div
+                  className={cn(
+                    "relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all duration-300",
+                    done && "bg-emerald-500 text-white shadow-md shadow-emerald-200/60 dark:shadow-emerald-950/60",
+                    active && "bg-primary text-primary-foreground shadow-md shadow-primary/25 ring-4 ring-primary/20",
+                    !done && !active && "border-2 border-border/40 bg-background text-muted-foreground/40"
+                  )}
+                >
+                  {done ? <CheckCircle2 className="h-4 w-4" /> : idx + 1}
                 </div>
 
-                {/* Connector */}
-                {idx < ORDERED_STEPS.length - 1 && (
-                  <div
+                <div className="flex max-w-[72px] flex-col items-center gap-0.5 text-center">
+                  <span
                     className={cn(
-                      "mt-4 h-0.5 w-10 shrink-0 rounded-full transition-all duration-500",
-                      idx < currentIdx
-                        ? "bg-emerald-400 dark:bg-emerald-700"
-                        : "bg-border"
+                      "text-[10px] font-semibold leading-tight",
+                      active ? "text-foreground" : done ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground/40"
                     )}
-                  />
-                )}
+                  >
+                    {STATUS_LABELS[step]}
+                  </span>
+                  <span className="text-[9px] leading-tight text-muted-foreground/40">
+                    {STEP_DESCRIPTIONS[step]}
+                  </span>
+                </div>
               </div>
             );
           })}
@@ -419,14 +413,14 @@ export function WorkflowDetailCard({ workflowId }: WorkflowDetailCardProps) {
                 <CardTitle className="text-base font-semibold">Timeline</CardTitle>
                 {historyData && (
                   <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    {historyData.events.length} events
+                    {historyData.total_events} events
                   </span>
                 )}
               </div>
             </CardHeader>
             <CardContent className="max-h-[520px] overflow-y-auto pt-5">
               <WorkflowTimeline
-                events={historyData?.events ?? []}
+                stages={historyData?.stages ?? []}
                 isLoading={historyLoading}
               />
             </CardContent>

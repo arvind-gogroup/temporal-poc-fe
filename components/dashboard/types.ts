@@ -1,4 +1,4 @@
-import type { WorkflowHistoryEvent, ReviewDetail } from "@/api/types";
+import type { WorkflowStage, ReviewDetail } from "@/api/types";
 
 /** Props for the workflow list table — data sourced internally via useWorkflows(). */
 export interface WorkflowTableProps {
@@ -12,7 +12,7 @@ export interface WorkflowDetailCardProps {
 
 /** Props for the Temporal event history timeline. */
 export interface WorkflowTimelineProps {
-  events: WorkflowHistoryEvent[];
+  stages: WorkflowStage[];
   isLoading?: boolean;
 }
 

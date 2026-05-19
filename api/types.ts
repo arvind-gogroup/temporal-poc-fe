@@ -109,19 +109,36 @@ export type ApproveSignalPayload = z.infer<typeof ApproveSignalPayloadSchema>;
 
 // --- Workflow History ---
 
-export const WorkflowHistoryEventSchema = z.object({
+/** A single Temporal event within a workflow stage, with a human-readable label. */
+export const StageEventSchema = z.object({
   event_id: z.number(),
   event_type: z.string(),
+  label: z.string(),
   timestamp: z.string(),
-  attributes: z.record(z.string(), z.unknown()),
 });
 
+/** One logical stage of workflow execution, grouping related Temporal events. */
+export const WorkflowStageSchema = z.object({
+  name: z.string(),
+  label: z.string(),
+  description: z.string(),
+  status: z.enum(["completed", "active", "pending"]),
+  started_at: z.string().nullable(),
+  completed_at: z.string().nullable(),
+  event_count: z.number(),
+  key_event: z.string().nullable(),
+  events: z.array(StageEventSchema),
+});
+
+/** Staged Temporal execution history returned by GET /api/reviews/{id}/history. */
 export const WorkflowHistoryResponseSchema = z.object({
   workflow_id: z.string(),
-  events: z.array(WorkflowHistoryEventSchema),
+  total_events: z.number(),
+  stages: z.array(WorkflowStageSchema),
 });
 
-export type WorkflowHistoryEvent = z.infer<typeof WorkflowHistoryEventSchema>;
+export type StageEvent = z.infer<typeof StageEventSchema>;
+export type WorkflowStage = z.infer<typeof WorkflowStageSchema>;
 export type WorkflowHistoryResponse = z.infer<typeof WorkflowHistoryResponseSchema>;
 
 // --- Error ---
